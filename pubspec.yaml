@@ -30,6 +30,9 @@ dependencies:
   cupertino_icons: ^1.0.2
   appwrite:
   get:
+  get_storage:
+  encrypt:
+  file_picker:
 
 dev_dependencies:
   flutter_test:

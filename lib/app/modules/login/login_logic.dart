@@ -1,9 +1,11 @@
-import 'package:app_write_demo/app/data/repositorys/auth_repository.dart';
+import 'package:app_write_demo/app/data/repositorys/local/local_auth_repository.dart';
+import 'package:app_write_demo/app/data/repositorys/remote/data_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class LoginLogic extends GetxController {
-  final _authRepository = Get.find<AuthRepository>();
+  final _dataRepository = Get.find<DataRepository>();
+  final _localAuthRepository = Get.find<LocalAuthRepository>();
   final formKey = GlobalKey<FormState>();
   final TextEditingController txtName = TextEditingController();
   final FocusNode focusName = FocusNode();
@@ -27,15 +29,20 @@ class LoginLogic extends GetxController {
   }
 
   void accountCreate() async {
-    final user = await _authRepository.accountCreate(
+    final user = await _dataRepository.accountCreate(
         email: txtEmail.text, password: txtPass.text, name: txtName.text);
-    print('user $user');
-    if (user != null) Get.offNamedUntil('/home', (route) => false);
+    if (user != null) {
+      await _localAuthRepository.saveSession(user.id);
+      Get.offNamedUntil('/home', (route) => false);
+    }
   }
 
   void accountCreateSession() async {
-    final session = await _authRepository.accountCreateSession(
+    final session = await _dataRepository.accountCreateSession(
         email: txtEmail.text, password: txtPass.text);
-    print('session $session');
+    if (session != null) {
+     await _localAuthRepository.saveSession(session.userId);
+      Get.offNamedUntil('/home', (route) => false);
+    }
   }
 }

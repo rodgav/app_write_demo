@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:async';
 
 import 'package:app_write_demo/app/data/models/image.dart';
 import 'package:app_write_demo/app/data/repositorys/local/local_auth_repository.dart';
@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 class HomeLogic extends GetxController {
   final _localAuthRepository = Get.find<LocalAuthRepository>();
   final _dataRepository = Get.find<DataRepository>();
+  late StreamSubscription<Images> _imagesSubscription;
   RxList<Images> _images = <Images>[].obs;
 
   List<Images> get images => _images;
@@ -23,14 +24,14 @@ class HomeLogic extends GetxController {
 
   void _getImages() async {
     _images.addAll(await _dataRepository.getImages());
-    _dataRepository.subscriptionImages().listen((event) {
+    _imagesSubscription = _dataRepository.subscriptionImages().listen((event) {
       _images.add(event);
     });
   }
 
   Future<void> filePicker() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom, withData: true, allowedExtensions: ['jpg']);
+        type: FileType.image, withData: true);
     if (result != null) {
       final bytes = result.files.single.bytes!;
       //final base64Image = base64Encode(bytes);
@@ -58,5 +59,11 @@ class HomeLogic extends GetxController {
       forwardAnimationCurve: Curves.easeOutBack,
       margin: EdgeInsets.all(15),
     );
+  }
+
+  @override
+  void onClose() {
+    _imagesSubscription.cancel();
+    super.onClose();
   }
 }

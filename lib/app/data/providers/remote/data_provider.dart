@@ -87,8 +87,6 @@ class DataProvider extends ge.GetxController {
         await database.listDocuments(collectionId: '6134fa8fe44b5');
     final imageModel = ImageModel.fromJson(response.data);
     return imageModel.documents;
-
-    print('response ${response.data}');
   }
 
   Stream<Images> subscriptionImages() {
